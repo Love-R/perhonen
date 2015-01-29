@@ -1,0 +1,14 @@
+Package: perhonen
+Type: Package
+Title: Functions for data manipulation & connections to Vowpal Wabbit
+Version: 1.0
+Date: 2015-01-15
+Author: Lukas Drapal
+Maintainer: Lukas Drapal <lukas.drapal@gmail.com>
+Description: Package provides various functions for transformations csv to Vowpal Wabbit
+    format and functions that make feature engineering easier - calculating mean response
+    for a factor variable, creating matrix of indicators for each level of a factor
+    variable, etc.
+License: GPL-2
+LazyData: TRUE
+Imports: data.table
