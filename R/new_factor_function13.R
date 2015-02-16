@@ -101,10 +101,12 @@ add.factormean <- function(factor, response) {
 #' @examples
 #' admission <- read.csv("http://www.ats.ucla.edu/stat/data/binary.csv")
 #' add.indicators(data = admission, factor = "rank")
-add.indicators <- function(data, factor) {
-  factorized <- factor(data[[factor]], exclude = NULL) #NA is a separate levele
-  matrix <- model.matrix(~factorized-1) #creation of the Boolign matrix
+add.indicators <- function(data, factor, min_count = 0) {
+  factorized <- factor(data[[factor]], exclude = NULL) #NA is a separate level
+  matrix <- model.matrix(~factorized-1) #creation of the Boolean matrix
   colnames(matrix) <- paste(factor, levels(factorized), sep="_")
       #naming the matrix colummns
+  over <- which(table(factorized) > min_count)
+  matrix <- matrix[,over]
   return(matrix)
 }
