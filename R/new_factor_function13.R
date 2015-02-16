@@ -94,10 +94,12 @@ add.factormean <- function(factor, response) {
 #' Adding Boolean matrix representing factor variable.
 #'
 #' The function outputs a Boolean matrix of indicators that represents levels of
-#' a factor variable.
+#' a factor variable. Minimal number of observations of factor level can be
+#' set to create indicators just for levels that are frequent.
 #'
 #' @param data Name of the data set.
 #' @param factor Column name of variable we want to create indicators for
+#' @param min_count Minimal number of observations of factor level for creating column of indicators
 #' @examples
 #' admission <- read.csv("http://www.ats.ucla.edu/stat/data/binary.csv")
 #' add.indicators(data = admission, factor = "rank")
