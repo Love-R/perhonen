@@ -4,16 +4,19 @@
 \alias{add.indicators}
 \title{Adding Boolean matrix representing factor variable.}
 \usage{
-add.indicators(data, factor)
+add.indicators(data, factor, min_count = 0)
 }
 \arguments{
 \item{data}{Name of the data set.}
 
 \item{factor}{Column name of variable we want to create indicators for}
+
+\item{min_count}{Minimal number of observations of factor level for creating column of indicators}
 }
 \description{
 The function outputs a Boolean matrix of indicators that represents levels of
-a factor variable.
+a factor variable. Minimal number of observations of factor level can be
+set to create indicators just for levels that are frequent.
 }
 \examples{
 admission <- read.csv("http://www.ats.ucla.edu/stat/data/binary.csv")
