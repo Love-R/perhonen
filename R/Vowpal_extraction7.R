@@ -6,14 +6,11 @@
 #'
 #' @param dataset Name of the dataset.
 change_NA <- function(dataset) {
-  #Columns that have at least one NA in it
   cols_NA <- colnames(dataset)[which(apply(dataset, 2, function(x) {sum(is.na(x))})>0)]
-  print(cols_NA)
   for (i in cols_NA) {
-    #Create a new column with column name and NA with incidators whether record is NA or not
     dataset[[as.character(paste0(i,"_","NA"))]] <- as.numeric( is.na (dataset[[i]]))
-    #Set NA to zero
     data.table::set(dataset,which(is.na(dataset[[as.character(paste0(i))]])),i,0)
+        #Setting NA to zero
   }
 }
 
@@ -31,34 +28,28 @@ change_NA <- function(dataset) {
 #' two groups.
 dt2vw <- function(dataset, id = NULL, target = NULL, weights = NULL, char_factor, int_numeric) {
   if (is.null(char_factor) | is.null(int_numeric)) {
-    #If the way how to treat columns is not specified
     cols <- colnames(dataset)[which(!colnames(dataset) %in% c(target,id))]
     classes <- sapply(dataset[,cols, with = F], class)
-    #Distinquish between columns based on their classes
     intnumeric <- names(classes)[which((classes == "integer")|(classes == "numeric"))]
     charfactor <- names(classes)[which((classes == "factor")|(classes == "character"))]
   }
   else{
-    #If specified which columns to use, we just check whether they are not target or id
     charfactor = char_factor[which(!char_factor %in% c(target,id))]
     intnumeric = int_numeric[which(!int_numeric %in% c(target,id))]
   }
-  #Cases when weights, target and id are missing or NULL are different
+
+  #Misspecification handling:
   missing_weights <- ((missing(weights))|is.null(weights))
   missing_target <- ((missing(target))|is.null(target))
   missing_id <- ((missing(id))|is.null(id))
-
-  #weights need to correspond to the number of examples:
   if (nrow(dataset) != length(weights) & !missing_weights) {
     stop("Length of vector weights not corresponding to nrows of data")
   }
-  #only training examples can be weighted:
   else if (missing_target & !missing_weights) {
     stop("Weights can be specified only if the target variable is present")
   }
-  else { #id and target variable may or may not be present
-    #output will contain the part before | which is different depending on
-    #which variables are present
+  else { #id and target variable may or may not be present which effects how
+         #variable "output" (containing the part before |) will look like
     if(missing_target & !missing_id ) { #for testing the target variable is absent
       output <- cbind(weights, paste0("'", dataset[[id]]), "|" )
     }
@@ -117,11 +108,11 @@ dt2vw <- function(dataset, id = NULL, target = NULL, weights = NULL, char_factor
 #' }
 csv2vw <- function(infile, outfile, n = 1000000, id = NULL, target = NULL, weights = NULL, start = 0,
                    int_numeric = NULL, char_factor = NULL,...) {
-  all <- F
+  all_read <- F
   i = 1
   first = T
-  while (!all) { #while we have not read the entire file
-    if (first) { #we need to work differently the first time - store header
+  while (!all_read) {
+    if (first) {
       part <- data.table::fread(input = infile, nrows = n, skip = start + (i-1) * n, header = T,  ...)
       header <- names(part)
     }
@@ -138,13 +129,13 @@ csv2vw <- function(infile, outfile, n = 1000000, id = NULL, target = NULL, weigh
       vwpart <- dt2vw(part, id = id, target = target, weights = weights[((i-1)*n):(i*n)],
                       int_numeric = int_numeric, char_factor = char_factor)
     }
-    if (first) { #First time we create a file
+    if (first) {
       write.table(vwpart, file=outfile, append = FALSE, quote = F, row.names = F, col.names = F )
     }
     else {
       write.table(vwpart, file=outfile, append = TRUE, quote = F, row.names = F, col.names = F )
     }
-    if(nrow(part) < n) {all = T} #If less then n rows was read, eof was reached
+    if(nrow(part) < n) {all_read = T} #If less then n rows was read, eof was reached
     first = F
     cat(nrow(part), "rows written, in total", nrow(part) + n * (i-1), "rows written \n")
     i =  i+1
